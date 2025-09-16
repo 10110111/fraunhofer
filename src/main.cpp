@@ -101,7 +101,7 @@ cl::Program LoadProgram(cl::Context context, std::vector<cl::Device> devices)
 
 int main(int argc, char* argv[])
 {
-    if (argc != 4) return 0;
+    if (argc != 4) return 1;
     size_t pla_num, dev_num;
     float lensDistance;
     float threshold;
@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
         lensDistance = node.child("FFT").attribute("LensDistance").as_float();
         threshold    = node.child("FFT").attribute("Threshold").as_float();
 
-        if (lensDistance == 0.0f) return 0;
+        if (lensDistance == 0.0f) return 2;
     }
 
     std::vector<cl_float4> aperture;
@@ -129,9 +129,9 @@ int main(int argc, char* argv[])
         std::string header; stream >> header;
         size_t resolution = 0;
 
-        if ((header != "P3") && (header != "P6")) return 0;
-        stream >> dim_x; if ((radix_x = radix(dim_x)) == 0) return 0;
-        stream >> dim_y; if ((radix_y = radix(dim_y)) == 0) return 0;
+        if ((header != "P3") && (header != "P6")) return 3;
+        stream >> dim_x; if ((radix_x = radix(dim_x)) == 0) return 4;
+        stream >> dim_y; if ((radix_y = radix(dim_y)) == 0) return 4;
         aperture.reserve(dim_x * dim_y);
         stream >> resolution;
 
@@ -189,12 +189,12 @@ int main(int argc, char* argv[])
 
     {
         std::vector<cl::Platform> platforms; cl::Platform::get(&platforms);
-        if (pla_num >= platforms.size()) return 0;
+        if (pla_num >= platforms.size()) return 6;
         platform = platforms[pla_num];
 
         std::vector<cl::Device> devices;
         platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
-        if (dev_num >= devices.size()) return 0;
+        if (dev_num >= devices.size()) return 7;
         device = devices[dev_num];
     }
 
