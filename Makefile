@@ -3,7 +3,9 @@ INCLUDE = -Iinclude/
 CXX = g++
 
            # The OpenCL C++ wrapper isn't fully 1.2 yet
-CXXFLAGS = -DCL_USE_DEPRECATED_OPENCL_1_1_APIS -Wno-cpp \
+CXXFLAGS = -DCL_USE_DEPRECATED_OPENCL_1_1_APIS \
+           -DCL_HPP_ENABLE_SIZE_T_COMPATIBILITY \
+           -Wno-cpp \
            -O3 -march=native -Wall -Wextra -pedantic -pipe
 
 HEADERS = $(shell find include/ -name '*.hpp')
