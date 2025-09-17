@@ -147,6 +147,30 @@ int main(int argc, char* argv[])
             std::cerr << "Bad input file header: neither P3 nor P6\n";
             return 3;
         }
+
+        auto pos = stream.tellg();
+        std::string line;
+        do
+        {
+            std::getline(stream, line, '\n');
+            while(line.size() && std::isspace(line.back()))
+                line.pop_back();
+            while(line.size() && std::isspace(line[0]))
+                line.erase(0, 1);
+            if(!line.empty() && line[0] != '#')
+            {
+                stream.seekg(pos);
+                break;
+            }
+            pos = stream.tellg();
+        }
+        while(stream);
+        if(!stream)
+        {
+            std::cerr << "Unexpected end of input file\n";
+            return 4;
+        }
+
         stream >> dim_x; if ((radix_x = radix(dim_x)) == 0)
         {
             std::cerr << "Bad input file header: dim_x=" << dim_x << "\n";
