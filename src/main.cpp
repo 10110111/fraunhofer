@@ -1,6 +1,7 @@
 #include <spectrum.hpp>
 #include <pugixml.hpp>
 #include <utility.hpp>
+#include <stdexcept>
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -96,7 +97,7 @@ cl::Program LoadProgram(cl::Context context, std::vector<cl::Device> devices)
     {
         std::string log;
         program.getBuildInfo(devices[0], CL_PROGRAM_BUILD_LOG, &log);
-        std::cout << log << std::endl;
+        throw std::runtime_error("Failed to build OpenCL program:\n" + log);
     }
 
     return program;
@@ -109,6 +110,7 @@ int usage(const char* argv0, const int ret)
 }
 
 int main(int argc, char* argv[])
+try
 {
     if (argc != 4) return usage(argv[0], 1);
     size_t pla_num, dev_num;
@@ -429,4 +431,13 @@ int main(int argc, char* argv[])
         }
 
     stream.close();
+}
+catch(std::exception const& ex)
+{
+    const int len = std::strlen(ex.what());
+    if(len > 0 && ex.what()[len - 1] == '\n')
+        std::cerr << ex.what();
+    else
+        std::cerr << ex.what() << '\n';
+    return 15;
 }
