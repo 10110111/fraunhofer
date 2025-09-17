@@ -102,9 +102,15 @@ cl::Program LoadProgram(cl::Context context, std::vector<cl::Device> devices)
     return program;
 }
 
+int usage(const char* argv0, const int ret)
+{
+    (ret ? std::cerr : std::cout) << "Usage: " << argv0 << " input.ppm output.hdr num-samples\n";
+    return ret;
+}
+
 int main(int argc, char* argv[])
 {
-    if (argc != 4) return 1;
+    if (argc != 4) return usage(argv[0], 1);
     size_t pla_num, dev_num;
     float lensDistance;
     float threshold;
@@ -119,7 +125,11 @@ int main(int argc, char* argv[])
         lensDistance = node.child("FFT").attribute("LensDistance").as_float();
         threshold    = node.child("FFT").attribute("Threshold").as_float();
 
-        if (lensDistance == 0.0f) return 2;
+        if (lensDistance == 0.0f)
+        {
+            std::cerr << "Error: lens distance is zero\n";
+            return 2;
+        }
     }
 
     std::vector<cl_float4> aperture;
@@ -132,9 +142,21 @@ int main(int argc, char* argv[])
         std::string header; stream >> header;
         size_t resolution = 0;
 
-        if ((header != "P3") && (header != "P6")) return 3;
-        stream >> dim_x; if ((radix_x = radix(dim_x)) == 0) return 4;
-        stream >> dim_y; if ((radix_y = radix(dim_y)) == 0) return 4;
+        if (header != "P3" && header != "P6")
+        {
+            std::cerr << "Bad input file header: neither P3 nor P6\n";
+            return 3;
+        }
+        stream >> dim_x; if ((radix_x = radix(dim_x)) == 0)
+        {
+            std::cerr << "Bad input file header: radix_x is zero\n";
+            return 4;
+        }
+        stream >> dim_y; if ((radix_y = radix(dim_y)) == 0)
+        {
+            std::cerr << "Bad input file header: radix_y is zero\n";
+            return 4;
+        }
         aperture.reserve(dim_x * dim_y);
         stream >> resolution;
 
@@ -192,12 +214,38 @@ int main(int argc, char* argv[])
 
     {
         std::vector<cl::Platform> platforms; cl::Platform::get(&platforms);
-        if (pla_num >= platforms.size()) return 6;
+        if (pla_num >= platforms.size())
+        {
+            if(platforms.size() == 0)
+            {
+                std::cerr << "No OpenCL platforms found\n";
+            }
+            else
+            {
+                std::cerr << "Bad platform id=" << pla_num
+                          << " chosen: only " << platforms.size()
+                          << " platforms exist\n";
+            }
+            return 6;
+        }
         platform = platforms[pla_num];
 
         std::vector<cl::Device> devices;
         platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
-        if (dev_num >= devices.size()) return 7;
+        if (dev_num >= devices.size())
+        {
+            if(platforms.size() == 0)
+            {
+                std::cerr << "No OpenCL devices found\n";
+            }
+            else
+            {
+                std::cerr << "Bad device id=" << dev_num
+                          << " chosen: only " << devices.size()
+                          << " devices exist\n";
+            }
+            return 7;
+        }
         device = devices[dev_num];
     }
 
