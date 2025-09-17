@@ -149,12 +149,12 @@ int main(int argc, char* argv[])
         }
         stream >> dim_x; if ((radix_x = radix(dim_x)) == 0)
         {
-            std::cerr << "Bad input file header: radix_x is zero\n";
+            std::cerr << "Bad input file header: dim_x=" << dim_x << "\n";
             return 4;
         }
         stream >> dim_y; if ((radix_y = radix(dim_y)) == 0)
         {
-            std::cerr << "Bad input file header: radix_y is zero\n";
+            std::cerr << "Bad input file header: dim_y=" << dim_y << "\n";
             return 4;
         }
         aperture.reserve(dim_x * dim_y);
