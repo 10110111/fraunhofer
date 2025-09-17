@@ -84,7 +84,11 @@ cl::Program LoadProgram(cl::Context context, std::vector<cl::Device> devices)
                       "#include <fft.cl>\n"
                       "#include <lens.cl>\n";
 
+#ifdef USING_OLD_CL_API
+    cl::Program::Sources data(1, std::make_pair(src, strlen(src)));
+#else
     cl::Program::Sources data{std::string(src)};
+#endif
 
     cl::Program program = cl::Program(context, data, 0);
 

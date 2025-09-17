@@ -1,6 +1,11 @@
 #pragma once
 
-#include <CL/opencl.hpp>
+#if __has_include(<CL/opencl.hpp>)
+# include <CL/opencl.hpp>
+#else
+# include <CL/cl.hpp>
+# define USING_OLD_CL_API 1
+#endif
 #include <cstddef>
 
 struct XYZ
